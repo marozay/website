@@ -1,0 +1,25 @@
+---
+import { SnowflakeIcon } from "@lucide/astro";
+---
+
+<header
+  id="site-header"
+  class="group fixed inset-x-0 top-0 z-50 p-4 transition-[padding] ease-in-out data-inset:p-0"
+>
+  <div class="mx-auto max-w-376 rounded-lg border-2 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] shadow-[0_4px_24px_#00000026] backdrop-blur-[20px] backdrop-saturate-[1.4] transition-all ease-in-out group-data-inset:max-w-full group-data-inset:rounded-none">
+    <div class="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
+      <SnowflakeIcon class="size-10 text-blue-900 dark:text-blue-500" />
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById("site-header");
+  if (header) {
+    const syncInset = () => {
+      header.toggleAttribute("data-inset", window.scrollY > 100);
+    };
+    syncInset();
+    window.addEventListener("scroll", syncInset, { passive: true });
+  }
+</script>

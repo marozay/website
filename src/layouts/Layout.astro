@@ -1,6 +1,7 @@
 ---
 import "@/components/global.css";
 import { Font } from "astro:assets";
+import Header from "@/widgets/header.astro";
 ---
 
 <!doctype html>
@@ -15,6 +16,7 @@ import { Font } from "astro:assets";
   </head>
 
   <body>
+    <Header />
     <slot />
   </body>
 </html>
