@@ -2,14 +2,20 @@
 import "./dot-grid.css";
 
 export interface Props {
-  /** Dot color at rest. */
+  /** Dot color at rest. Accepts any CSS color, including `var()`. */
   baseColor?: string;
-  /** Dot color near pointer. */
+  /** Dot color near pointer. Accepts any CSS color, including `var()`. */
   activeColor?: string;
   class?: string;
 }
 
-const { baseColor = "#3a3446", activeColor = "#ffffff", class: className } = Astro.props;
+// Grid dots read as a pattern, so they take the grid token. Interaction
+// accent takes the primary token.
+const {
+  baseColor = "var(--grid-color, var(--border, #e2e8f0))",
+  activeColor = "var(--primary, #1d4ed8)",
+  class: className,
+} = Astro.props;
 ---
 
 <div
@@ -119,22 +125,33 @@ void main() {
 }
 `;
 
-  /** Parse `#abc` or `#aabbcc`. Invalid input falls back to white. */
-  const toRgb = (color: string): [number, number, number] => {
-    const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(color.trim());
-    if (!match?.[1]) return [1, 1, 1];
-    const hex =
-      match[1].length === 3
-        ? match[1]
-            .split("")
-            .map((digit) => digit + digit)
-            .join("")
-        : match[1];
-    return [
-      parseInt(hex.slice(0, 2), 16) / 255,
-      parseInt(hex.slice(2, 4), 16) / 255,
-      parseInt(hex.slice(4, 6), 16) / 255,
-    ];
+  type Rgb = [number, number, number];
+
+  const colorCanvas = document.createElement("canvas");
+  colorCanvas.width = 1;
+  colorCanvas.height = 1;
+  const colorCtx = colorCanvas.getContext("2d", { willReadFrequently: true });
+
+  /** Resolve `var()` chains and `color()` syntax to a concrete `color` value. */
+  const toComputed = (host: HTMLElement, value: string): string => {
+    const probe = document.createElement("span");
+    probe.style.cssText = `display:none;color:${value}`;
+    host.appendChild(probe);
+    const computed = getComputedStyle(probe).color;
+    probe.remove();
+    return computed;
+  };
+
+  /** Composite `top` over `bottom` and return sRGB floats. */
+  const flatten = (top: string, bottom: string): Rgb => {
+    if (!colorCtx) return [1, 1, 1];
+    colorCtx.clearRect(0, 0, 1, 1);
+    colorCtx.fillStyle = bottom;
+    colorCtx.fillRect(0, 0, 1, 1);
+    colorCtx.fillStyle = top;
+    colorCtx.fillRect(0, 0, 1, 1);
+    const data = colorCtx.getImageData(0, 0, 1, 1).data;
+    return [(data[0] ?? 0) / 255, (data[1] ?? 0) / 255, (data[2] ?? 0) / 255];
   };
 
   const smootherstep = (value: number): number => {
@@ -185,8 +202,17 @@ void main() {
       fade: uniform("uFade"),
     };
 
-    const base = toRgb(root.dataset.baseColor ?? "#3a3446");
-    const active = toRgb(root.dataset.activeColor ?? "#ffffff");
+    const baseSource = root.dataset.baseColor ?? "var(--grid-color, var(--border, #e2e8f0))";
+    const activeSource = root.dataset.activeColor ?? "var(--primary, #1d4ed8)";
+    let base: Rgb = [1, 1, 1];
+    let active: Rgb = [1, 1, 1];
+
+    // Tokens change with the theme, so colors resolve again after a theme swap.
+    const applyPalette = (): void => {
+      const background = toComputed(root, "var(--background, #f8fafc)");
+      base = flatten(toComputed(root, baseSource), background);
+      active = flatten(toComputed(root, activeSource), background);
+    };
 
     const vao = gl.createVertexArray();
     const cornerBuffer = gl.createBuffer();
@@ -502,6 +528,15 @@ void main() {
       wake();
     }).observe(canvas);
 
+    new MutationObserver(() => {
+      applyPalette();
+      render();
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "style", "data-theme"],
+    });
+
+    applyPalette();
     resize();
   };
 
