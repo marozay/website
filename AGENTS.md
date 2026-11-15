@@ -48,6 +48,9 @@ This file defines how AI agents should work in this repository. Rules here apply
    - Bad: `// We should retry this request because the upstream server occasionally drops it`
    - Good: `// Retry once: upstream server drops first request intermittently`
 
+8. **Use the `.tmp` folder for temporary files.**
+   This folder is completely at your disposal; use it to store temporary files for scripts. If the folder doesn't exist and you need it, create it. If it contains any interfering content, you can delete whatever you need.
+
 ## Documentation
 
 This is an Astro project. Astro is not a traditional SPA framework: it ships zero client-side JavaScript by default, renders static HTML/CSS at build time or on the server (Islands Architecture), and hydrates interactive UI islands selectively via client:* directives. Do not port SPA or client-first patterns.
