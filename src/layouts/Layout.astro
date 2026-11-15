@@ -1,6 +1,7 @@
 ---
 import "@/components/global.css";
 import { Font } from "astro:assets";
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import Header from "@/widgets/header.astro";
 ---
 
@@ -9,6 +10,7 @@ import Header from "@/widgets/header.astro";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <ThemeInitScript />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <Font cssVariable="--font-jetbrains-mono" preload />
