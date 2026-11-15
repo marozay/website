@@ -1,0 +1,15 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { VariantProps } from "tailwind-variants";
+import { button } from "@/components/button/variants";
+
+interface Props extends Omit<HTMLAttributes<"a">, "type">, VariantProps<typeof button> {
+  href: string;
+}
+
+const { variant, size, class: className, ...rest } = Astro.props;
+---
+
+<a {...rest} class={button({ variant, size, class: className })} data-slot="button-link">
+  <slot />
+</a>

@@ -6,7 +6,14 @@
     "source": "bundled",
     "version": "2.2.0"
   },
-  "components": [],
+  "components": [
+    {
+      "name": "button",
+      "version": "3.0.3",
+      "framework": "astro",
+      "registry": "default"
+    }
+  ],
   "tailwind": {
     "css": "src/components/global.css",
     "baseColor": "neutral",

@@ -1,0 +1,53 @@
+---
+import { Button } from "@/components/button";
+import ButtonLink from "@/components/ui/button-link.astro";
+import Section from "@/components/ui/section.astro";
+import GithubIcon from "@/components/icons/github.astro";
+import TelegramIcon from "@/components/icons/telegram.astro";
+---
+
+<Section class="px-4 md:px-12 2xl:px-16">
+  <div class="relative flex h-[clamp(0px,calc(100svh-7rem),640px)] flex-col justify-between gap-6 pt-8 lg:flex-row lg:items-center lg:pt-0">
+    <div class="shrink-0">
+      <h1 class="font-medium">
+        <span class="text-[clamp(1.5rem,7.5vw,3rem)] md:text-[clamp(3rem,6vw,3.75rem)] lg:text-[clamp(2.5rem,4.8vw,3.75rem)] 2xl:text-6xl">
+          Fullstack Developer
+        </span>
+        <br />
+        <span class="block text-[clamp(0.95rem,4.7vw,1.89rem)] md:-mt-0.5 md:text-[clamp(1.89rem,3.7vw,2.3rem)] lg:-mt-1 lg:text-[clamp(0rem,2.95vw,2.3rem)] 2xl:mt-6 2xl:text-3xl">
+          Egor Morozov • HelloClient
+        </span>
+      </h1>
+
+      <div class="mt-10 flex gap-4">
+        <Button variant="primary" size="lg" class="rounded-full">
+          Hello ?
+        </Button>
+
+        <ButtonLink
+          href="https://t.me/marozay"
+          target="_blank"
+          rel="noreferrer noopener"
+          variant="secondary"
+          size="icon"
+          aria-label="Telegram"
+          class="rounded-full text-foreground/60 hover:text-foreground"
+        >
+          <TelegramIcon class="size-6" />
+        </ButtonLink>
+
+        <ButtonLink
+          href="https://github.com/marozay"
+          target="_blank"
+          rel="noreferrer noopener"
+          variant="secondary"
+          size="icon"
+          aria-label="GitHub"
+          class="rounded-full text-foreground/60 hover:text-foreground"
+        >
+          <GithubIcon class="size-6" />
+        </ButtonLink>
+      </div>
+    </div>
+  </div>
+</Section>
