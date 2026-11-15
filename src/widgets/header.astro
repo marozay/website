@@ -10,7 +10,10 @@ import TelegramIcon from "@/components/icons/telegram.astro";
 >
   <div class="mx-auto max-w-376 rounded-lg border-2 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] shadow-[0_4px_24px_#00000026] backdrop-blur-[20px] backdrop-saturate-[1.4] transition-all ease-in-out group-data-inset:max-w-full group-data-inset:rounded-none">
     <div class="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
-      <SnowflakeIcon class="size-10 text-blue-900 dark:text-blue-500" />
+      <a href="/" class="flex items-center gap-3 text-blue-900 dark:text-blue-500">
+        <SnowflakeIcon class="size-10" />
+        <span class="text-2xl font-semibold uppercase tracking-widest">MAROZAY</span>
+      </a>
 
       <div class="flex items-center gap-1">
         <a
@@ -51,15 +54,20 @@ import TelegramIcon from "@/components/icons/telegram.astro";
 <script>
   import { initThemeController } from "@starwind-ui/astro/theme";
 
-  const header = document.getElementById("site-header");
-  if (header) {
-    const syncInset = () => {
-      header.toggleAttribute("data-inset", window.scrollY > 100);
-    };
-    syncInset();
-    window.addEventListener("scroll", syncInset, { passive: true });
-  }
+  let header: HTMLElement | null = null;
 
-  // Controller finds `[data-sw-theme-control]`, so the switch needs no own code.
-  initThemeController();
+  const syncInset = (): void => {
+    header?.toggleAttribute("data-inset", window.scrollY > 100);
+  };
+
+  const setup = (): void => {
+    header = document.getElementById("site-header");
+    syncInset();
+    // After a swap the toggle is a new node, so the controller re-binds.
+    initThemeController();
+  };
+
+  window.addEventListener("scroll", syncInset, { passive: true });
+  document.addEventListener("astro:page-load", setup);
+  setup();
 </script>

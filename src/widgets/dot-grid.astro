@@ -167,27 +167,27 @@ void main() {
     return shader;
   };
 
-  const init = (root: HTMLElement): void => {
+  const init = (root: HTMLElement): (() => void) | null => {
     const canvas = root.querySelector<HTMLCanvasElement>(".dot-grid__canvas");
-    if (!canvas) return;
+    if (!canvas) return null;
 
     const gl = canvas.getContext("webgl2", {
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
     });
-    if (!gl) return;
+    if (!gl) return null;
 
     const program = gl.createProgram();
-    if (!program) return;
+    if (!program) return null;
     try {
       gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, VERTEX));
       gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT));
     } catch {
-      return;
+      return null;
     }
     gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
 
     const uniform = (name: string) => gl.getUniformLocation(program, name);
     const uniforms = {
@@ -217,7 +217,7 @@ void main() {
     const vao = gl.createVertexArray();
     const cornerBuffer = gl.createBuffer();
     const instanceBuffer = gl.createBuffer();
-    if (!vao || !cornerBuffer || !instanceBuffer) return;
+    if (!vao || !cornerBuffer || !instanceBuffer) return null;
 
     gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, cornerBuffer);
@@ -470,6 +470,8 @@ void main() {
       render();
     };
 
+    const cleanups: Array<() => void> = [];
+
     if (interactive) {
       const onMove = (event: PointerEvent): void => {
         if (event.pointerType === "touch") return;
@@ -503,6 +505,15 @@ void main() {
         if (!event.relatedTarget) onLeave();
       };
 
+      const onVisibilityChange = (): void => {
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        } else {
+          wake();
+        }
+      };
+
       window.addEventListener("pointermove", onMove, { passive: true });
       window.addEventListener("pointerout", onOut);
       window.addEventListener("blur", onLeave);
@@ -513,36 +524,66 @@ void main() {
       });
       visibility.observe(canvas);
 
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          cancelAnimationFrame(raf);
-          raf = 0;
-        } else {
-          wake();
-        }
-      });
+      document.addEventListener("visibilitychange", onVisibilityChange);
+
+      cleanups.push(
+        () => window.removeEventListener("pointermove", onMove),
+        () => window.removeEventListener("pointerout", onOut),
+        () => window.removeEventListener("blur", onLeave),
+        () => visibility.disconnect(),
+        () => document.removeEventListener("visibilitychange", onVisibilityChange),
+      );
     }
 
-    new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver(() => {
       resize();
       wake();
-    }).observe(canvas);
+    });
+    resizeObserver.observe(canvas);
 
-    new MutationObserver(() => {
+    const themeObserver = new MutationObserver(() => {
       applyPalette();
       render();
-    }).observe(document.documentElement, {
+    });
+    themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style", "data-theme"],
     });
 
+    cleanups.push(
+      () => resizeObserver.disconnect(),
+      () => themeObserver.disconnect(),
+    );
+
     applyPalette();
     resize();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      for (const cleanup of cleanups) cleanup();
+      gl.deleteBuffer(cornerBuffer);
+      gl.deleteBuffer(instanceBuffer);
+      gl.deleteVertexArray(vao);
+      gl.deleteProgram(program);
+    };
   };
 
-  for (const root of document.querySelectorAll<HTMLElement>("[data-dot-grid]")) {
-    if (root.dataset.dotGridReady === "true") continue;
-    root.dataset.dotGridReady = "true";
-    init(root);
-  }
+  const mounted = new Map<HTMLElement, () => void>();
+
+  const mount = (): void => {
+    for (const root of document.querySelectorAll<HTMLElement>("[data-dot-grid]")) {
+      if (mounted.has(root)) continue;
+      const teardown = init(root);
+      if (teardown) mounted.set(root, teardown);
+    }
+  };
+
+  const unmount = (): void => {
+    for (const teardown of mounted.values()) teardown();
+    mounted.clear();
+  };
+
+  document.addEventListener("astro:before-swap", unmount);
+  document.addEventListener("astro:page-load", mount);
+  mount();
 </script>

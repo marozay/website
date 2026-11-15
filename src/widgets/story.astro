@@ -121,25 +121,36 @@ const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10);
 </ul>
 
 <script>
-  const items = document.querySelectorAll<HTMLElement>("[data-story-item]");
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const setup = (): void => {
+    const items = [...document.querySelectorAll<HTMLElement>("[data-story-item]")].filter(
+      (item) => item.dataset.revealReady !== "true",
+    );
+    if (!items.length) return;
 
-  if (items.length > 0) {
-    if (reduced || !("IntersectionObserver" in window)) {
+    for (const item of items) item.dataset.revealReady = "true";
+
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
       for (const item of items) item.setAttribute("data-visible", "");
-    } else {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            entry.target.setAttribute("data-visible", "");
-            observer.unobserve(entry.target);
-          }
-        },
-        { threshold: 0.3 },
-      );
-
-      for (const item of items) observer.observe(item);
+      return;
     }
-  }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.setAttribute("data-visible", "");
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.3 },
+    );
+
+    for (const item of items) observer.observe(item);
+  };
+
+  document.addEventListener("astro:page-load", setup);
+  setup();
 </script>
