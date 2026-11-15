@@ -1,7 +1,1 @@
-words = [
-    "oxc",
-    "astro",
-    "starwind",
-    "pnpm",
-    "tradeoff"
-]
+words = ["oxc", "astro", "starwind", "pnpm", "tradeoff"]

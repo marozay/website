@@ -6,6 +6,8 @@
     "prepare": "bun -b lefthook install",
     "typecheck": "bun -b tsc --noEmit --runExternalCode",
     "lint:fix": "bun -b oxlint --fix",
+    "format": "bun -b oxfmt",
+    "format:check": "bun -b oxfmt --check",
     "dev": "bun -b astro dev",
     "build": "bun -b astro build",
     "preview": "bun -b astro preview"
@@ -18,6 +20,7 @@
     "tailwind-variants": "^4.0.2"
   },
   "devDependencies": {
+    "@astrojs/compiler-rs": "^0.5.3",
     "@astrojs/ts-content-mapper": "^0.2.0",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/vite": "^4.3.5",

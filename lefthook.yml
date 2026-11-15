@@ -1,9 +1,15 @@
 pre-commit:
   parallel: true
   commands:
+    format:
+      glob: "*.{ts,tsx,js,jsx,json,jsonc,md,css,astro}"
+      run: bun -b oxfmt {staged_files}
+      priority: 1
+      stage_fixed: true
     lint:
       glob: "*.{ts,tsx,astro}"
       run: bun run lint:fix {staged_files}
+      priority: 2
       stage_fixed: true
     typecheck:
       run: bun run typecheck
