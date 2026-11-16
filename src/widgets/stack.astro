@@ -1,15 +1,25 @@
 ---
 import Section from "@/components/ui/section.astro";
-import { projects } from "@/lib/projects";
-import { deriveStack, type StackItem } from "@/lib/stack";
+import { getGroupedTechnologyStats } from "@/data/projects";
+import type { TechnologyType } from "@/data/technologies.types";
 
-const groups = deriveStack(projects);
-const max = Math.max(1, ...groups.flatMap((group) => group.items.map((item) => item.count)));
+const TYPE_LABELS: Record<TechnologyType, string> = {
+  frontend: "Frontend",
+  backend: "Backend",
+  "data-and-ai": "Data & AI",
+};
 
-const hint = (item: StackItem): string =>
-  `${item.count} ${item.count === 1 ? "project" : "projects"}: ${item.via.join(", ")}`;
+const groups = getGroupedTechnologyStats().map((group) => ({
+  label: TYPE_LABELS[group.technologyType],
+  items: [...group.technologies].sort((a, b) => b.projectsCount - a.projectsCount),
+}));
 
-const width = (item: StackItem): string => `${((item.count / max) * 100).toFixed(1)}%`;
+const max = Math.max(
+  1,
+  ...groups.flatMap((group) => group.items.map((item) => item.projectsCount)),
+);
+
+const width = (count: number): string => `${((count / max) * 100).toFixed(1)}%`;
 ---
 
 <Section class="relative px-4 py-10 md:px-8 lg:px-12">
@@ -20,24 +30,24 @@ const width = (item: StackItem): string => `${((item.count / max) * 100).toFixed
 
   <div class="mt-12 grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
     {groups.map((group) => (
-      <div class="border-border pt-6">
+      <div class="border-t border-border pt-6">
         <h3 class="text-sm font-medium tracking-[0.2em] text-muted-foreground uppercase">
           {group.label}
         </h3>
 
         <ul class="mt-6 flex flex-col gap-4">
           {group.items.map((item) => (
-            <li class="group" title={hint(item)}>
+            <li class="group" title={item.technology.description}>
               <div class="flex items-baseline justify-between gap-3">
-                <span class="text-lg">{item.name}</span>
+                <span class="text-lg">{item.technology.title}</span>
                 <span class="text-sm whitespace-nowrap text-muted-foreground">
-                  {item.count} {item.count === 1 ? "project" : "projects"}
+                  {item.projectsCount} {item.projectsCount === 1 ? "project" : "projects"}
                 </span>
               </div>
               <div class="mt-2 h-1 overflow-hidden rounded-full bg-border" aria-hidden="true">
                 <span
                   class="block h-full rounded-full bg-primary/60 transition-colors group-hover:bg-primary"
-                  style={`width:${width(item)}`}
+                  style={`width:${width(item.projectsCount)}`}
                 />
               </div>
             </li>
