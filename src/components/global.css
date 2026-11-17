@@ -173,6 +173,11 @@
   body {
     @apply bg-background text-foreground scheme-light dark:scheme-dark;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   button {
     @apply cursor-pointer;
   }

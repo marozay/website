@@ -7,6 +7,7 @@ import Story from "@/widgets/story.astro";
 import Stack from "@/widgets/stack.astro";
 import About from "@/widgets/about.astro";
 import Contact from "@/widgets/contact.astro";
+import Footer from "@/widgets/footer.astro";
 ---
 
 <Layout>
@@ -17,7 +18,7 @@ import Contact from "@/widgets/contact.astro";
 
     <Hero />
 
-    <div class="relative mt-4 border-y border-border bg-background">
+    <div id="story" class="relative mt-4 scroll-mt-24 border-y border-border bg-background">
       <Section class="px-4 py-10 md:px-8 lg:px-12">
         <Story />
       </Section>
@@ -25,10 +26,12 @@ import Contact from "@/widgets/contact.astro";
 
     <Stack />
 
-    <div class="relative mt-4 border-y border-border bg-background">
+    <div id="about" class="relative mt-4 scroll-mt-24 border-y border-border bg-background">
       <About />
     </div>
 
     <Contact />
   </main>
+
+  <Footer />
 </Layout>
