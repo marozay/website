@@ -182,3 +182,28 @@
     @apply cursor-pointer;
   }
 }
+
+@layer components {
+  /* Texture paints above band background, below cards and text. */
+  .surface-grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .surface-grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--grain-image);
+    background-repeat: repeat;
+    background-size: 512px 512px;
+    mix-blend-mode: multiply;
+    opacity: 0.9;
+  }
+  .dark .surface-grain::before {
+    filter: invert(1);
+    mix-blend-mode: screen;
+    opacity: 0.35;
+  }
+}

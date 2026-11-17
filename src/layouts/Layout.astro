@@ -1,9 +1,20 @@
 ---
 import "@/components/global.css";
-import { Font } from "astro:assets";
+import { Font, getImage } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import { ThemeInitScript } from "@starwind-ui/astro/theme";
 import Header from "@/widgets/header.astro";
+import noise from "@/assets/white-noise.webp";
+
+// In this case (grain texture) AVIF reduces image weight
+const grain = await getImage({
+  src: noise,
+  width: 512,
+  height: 512,
+  fit: "cover",
+  format: "avif",
+  quality: 50,
+});
 ---
 
 <!doctype html>
@@ -18,7 +29,7 @@ import Header from "@/widgets/header.astro";
     <title>Egor Morozov | Fullstack Developer</title>
   </head>
 
-  <body>
+  <body style={`--grain-image: url('${grain.src}')`}>
     <Header />
     <slot />
   </body>
