@@ -1,4 +1,5 @@
 ---
+import { Badge } from "@/components/badge";
 import { projects } from "@/data/projects";
 import { formatDate, formatDuration, toIsoDate } from "@/lib/format";
 ---
@@ -30,12 +31,9 @@ import { formatDate, formatDuration, toIsoDate } from "@/lib/format";
           </span>
           <div class="flex flex-wrap gap-2 p-4 pt-3">
             {project.stack.map((tech) => (
-              <div
-                class="w-fit rounded-sm border border-border bg-surface px-2 py-1 text-sm shadow-sm"
-                title={tech.description}
-              >
+              <Badge tone="neutral" appearance="outline" size="md" title={tech.description}>
                 {tech.title}
-              </div>
+              </Badge>
             ))}
           </div>
         </div>
